@@ -17,7 +17,14 @@ namespace Web.Middlewares
             }
             catch (Exception ex)
             {
-                if (!context.Response.HasStarted)
+                if (context.Response.HasStarted)
+                {
+                    var logger = context.RequestServices
+                        .GetService<ILogger<ExceptionHandlerMiddleware>>();
+
+                    logger.LogError(ex, "");
+                }
+                else
                 {
                     await HandleExceptionAsync(ex, context);
                 }

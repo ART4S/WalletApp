@@ -7,14 +7,14 @@ namespace Web.Helpers
     class CurrencyConverter
     {
         private readonly ILogger _logger;
-        private readonly ICurrencyRatesProvider _ratesProvider;
+        private readonly ICurrencyRatesProvider _currencyRatesProvider;
 
         public CurrencyConverter(
             ILogger logger, 
-            ICurrencyRatesProvider ratesProvider)
+            ICurrencyRatesProvider currencyRatesProvider)
         {
             _logger = logger;
-            _ratesProvider = ratesProvider;
+            _currencyRatesProvider = currencyRatesProvider;
         }
 
         // TODO: add appropriate description for error messages
@@ -37,7 +37,7 @@ namespace Web.Helpers
                 return true;
             }
 
-            IDictionary<string, decimal> rates = _ratesProvider.GetRates();
+            IDictionary<string, decimal> rates = _currencyRatesProvider.GetRates();
 
             if (!rates.TryGetValue(currencyFrom, out var fromRate))
             {
