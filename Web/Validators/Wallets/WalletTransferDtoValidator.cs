@@ -17,7 +17,7 @@ namespace Web.Validators.Wallets
             RuleFor(x => x.CurrencyTo).Must(BeInCurrencyCodes)
                 .WithMessage("Invalid code");
 
-            RuleFor(x => x).Must(CurrencyCodesAreDifferent)
+            RuleFor(x => x).Must(HaveDifferentCurrencyCodes)
                 .WithMessage("Currencies must be different");
         }
 
@@ -26,7 +26,7 @@ namespace Web.Validators.Wallets
             return AppConstants.CurrencyCodes.Contains(currencyCode);
         }
 
-        private static bool CurrencyCodesAreDifferent(WalletTransferDto dto)
+        private static bool HaveDifferentCurrencyCodes(WalletTransferDto dto)
         {
             return dto.CurrencyFrom != dto.CurrencyTo;
         }
