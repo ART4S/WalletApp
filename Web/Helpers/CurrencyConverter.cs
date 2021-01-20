@@ -17,7 +17,6 @@ namespace Web.Helpers
             _currencyRatesProvider = currencyRatesProvider;
         }
 
-        // TODO: add appropriate description for error messages
         public bool TryConvert(
             string currencyFrom, 
             string currencyTo, 
@@ -37,15 +36,10 @@ namespace Web.Helpers
                 return true;
             }
 
-            IDictionary<string, decimal> rates = _currencyRatesProvider.GetRates();
+            IReadOnlyDictionary<string, decimal> rates = _currencyRatesProvider.GetRates();
 
-            if (!rates.TryGetValue(currencyFrom, out var fromRate))
-            {
-                error = "";
-                return false;
-            }
-
-            if (!rates.TryGetValue(currencyTo, out var toRate))
+            if (!rates.TryGetValue(currencyFrom, out var fromRate) ||
+                !rates.TryGetValue(currencyTo, out var toRate))
             {
                 error = "";
                 return false;

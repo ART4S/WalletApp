@@ -51,14 +51,9 @@ namespace Web.Services.Implementations
 
             Wallet wallet = await CreateWalletIfNotExist(userId, walletDto.Currency);
 
-            if (!TryAddAmount(wallet.Total, walletDto.Amount, out decimal newTotal, out var error))
+            if (!TryAddAmount(wallet.Total, walletDto.Amount, out decimal newTotal, out string error))
             {
-                if (error.Exception is not null)
-                {
-                    _logger.LogError(error.Exception, "");
-                }
-
-                throw new InvalidRequestException(error.Message);
+                throw new InvalidRequestException(error);
             }
 
             wallet.Total = newTotal;
@@ -72,14 +67,9 @@ namespace Web.Services.Implementations
 
             Wallet wallet = await CreateWalletIfNotExist(userId, walletDto.Currency);
 
-            if (!TrySubstractAmount(wallet.Total, walletDto.Amount, out decimal newTotal, out var error))
+            if (!TrySubstractAmount(wallet.Total, walletDto.Amount, out decimal newTotal, out string error))
             {
-                if (error.Exception is not null)
-                {
-                    _logger.LogError(error.Exception, "");
-                }
-
-                throw new InvalidRequestException(error.Message);
+                throw new InvalidRequestException(error);
             }
 
             wallet.Total = newTotal;
@@ -93,14 +83,9 @@ namespace Web.Services.Implementations
 
             Wallet walletFrom = await CreateWalletIfNotExist(userId, walletDto.CurrencyFrom);
 
-            if (!TrySubstractAmount(walletFrom.Total, walletDto.Amount, out decimal newTotalFrom , out var error))
+            if (!TrySubstractAmount(walletFrom.Total, walletDto.Amount, out decimal newTotalFrom , out string error))
             {
-                if (error.Exception is not null)
-                {
-                    _logger.LogError(error.Exception, "");
-                }
-
-                throw new InvalidRequestException(error.Message);
+                throw new InvalidRequestException(error);
             }
 
             walletFrom.Total = newTotalFrom;
@@ -112,21 +97,16 @@ namespace Web.Services.Implementations
                 walletDto.CurrencyTo,
                 walletDto.Amount,
                 out decimal amountTo,
-                out string errorMessage))
+                out error))
             {
-                throw new InvalidRequestException(errorMessage);
+                throw new InvalidRequestException(error);
             }
 
             Wallet walletTo = await CreateWalletIfNotExist(userId, walletDto.CurrencyTo);
 
             if (!TryAddAmount(walletTo.Total, amountTo, out decimal newTotalTo, out error))
             {
-                if (error.Exception is not null)
-                {
-                    _logger.LogError(error.Exception, "");
-                }
-
-                throw new InvalidRequestException(error.Message);
+                throw new InvalidRequestException(error);
             }
 
             walletTo.Total = newTotalTo;
@@ -163,58 +143,41 @@ namespace Web.Services.Implementations
             return wallet;
         }
 
-        private bool TryAddAmount(
+        private static bool TryAddAmount(
             decimal total, 
             decimal amount, 
             out decimal result, 
-            out (string Message, Exception Exception) error)
+            out string error)
         {
             result = default;
             error = default;
 
-            try
+            if (decimal.MaxValue - total < amount)
             {
-                result = total + amount;
-            }
-            catch (OverflowException ex)
-            {
-                error = ("Operation cannot be performed: total is too large", ex);
-
+                error = "Operation cannot be performed: amount is too large";
                 return false;
             }
 
+            result = total + amount;
             return true;
         }
 
-        private bool TrySubstractAmount(
+        private static bool TrySubstractAmount(
             decimal total, 
             decimal amount, 
             out decimal result, 
-            out (string Message, Exception Exception) error)
+            out string error)
         {
             result = default;
             error = default;
 
-            const string errorMessage = "Operation cannot be performed: total shouldn't be less than 0";
-
-            try
+            if (amount > total)
             {
-                result = total - amount;
-            }
-            catch (OverflowException ex)
-            {
-                error = (errorMessage, ex);
-
+                error = "Operation cannot be performed: amount is too large";
                 return false;
             }
 
-            if (result < 0)
-            {
-                error = (errorMessage, null);
-
-                return false;
-            }
-
+            result = total - amount;
             return true;
         }
     }

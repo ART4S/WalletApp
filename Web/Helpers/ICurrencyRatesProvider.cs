@@ -4,6 +4,6 @@ namespace Web.Helpers
 {
     interface ICurrencyRatesProvider
     {
-        IDictionary<string, decimal> GetRates();
+        IReadOnlyDictionary<string, decimal> GetRates();
     }
 }

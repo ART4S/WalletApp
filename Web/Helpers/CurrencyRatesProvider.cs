@@ -31,7 +31,7 @@ namespace Web.Helpers
             _httpClientFactory = httpClientFactory;
         }
 
-        public IDictionary<string, decimal> GetRates()
+        public IReadOnlyDictionary<string, decimal> GetRates()
         {
             return Rates;
         }
